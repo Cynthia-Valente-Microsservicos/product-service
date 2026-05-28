@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-redis
+  template:
+    metadata:
+      labels:
+        app: product-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:alpine
+          ports:
+            - containerPort: 6379
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-redis
+spec:
+  selector:
+    app: product-redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+        - name: product
+          image: 730335608828.dkr.ecr.us-east-2.amazonaws.com/product:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: REDIS_HOST
+              value: "product-redis"
+            - name: REDIS_PORT
+              value: "6379"
+
+            - name: DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: database-host
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: DATABASE_DB
+              value: "postgres"
+            - name: DATABASE_USERNAME
+              value: "store"
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: database-password
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: product
+spec:
+  selector:
+    app: product
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

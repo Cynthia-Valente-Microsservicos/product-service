@@ -64,4 +64,17 @@ public class ProductResource implements ProductController {
     public ResponseEntity<Void> healthCheck() {
         return ResponseEntity.ok().build();
     }  
+    
+    @Override
+    public ResponseEntity<List<ProductOut>> findAll(String name) {
+        List<Product> products;
+        
+        if (name != null && !name.isBlank()) {
+            products = productService.findByNameLike(name);
+        } else {
+            products = productService.findByAll();
+        }
+        
+        return ResponseEntity.ok(ProductParser.to(products));
+    }
 }

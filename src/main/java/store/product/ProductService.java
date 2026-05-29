@@ -39,4 +39,10 @@ public class ProductService {
         ).map(ProductModel::to)
         .toList();
     }
+
+    public List<Product> findByNameLike(String name) {
+    return productRepository.searchByNameContaining(name).stream()
+        .map(ProductModel::to)
+        .toList();
+}
 }

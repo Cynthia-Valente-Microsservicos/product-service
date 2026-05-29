@@ -3,7 +3,9 @@ package store.product;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -33,7 +35,10 @@ public class ProductResource implements ProductController {
     }
 
     @Override
-    public ResponseEntity<Void> create(ProductIn in){
+    public ResponseEntity<Void> create(ProductIn in, @RequestHeader("role") String role){
+        if (role == null || !role.contains("ADMIN")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         final Product p = productService.create(
             ProductParser.to(in)
         );
@@ -47,7 +52,10 @@ public class ProductResource implements ProductController {
     }
 
     @Override
-    public ResponseEntity<Void> delete(String id){
+    public ResponseEntity<Void> delete(String id, @RequestHeader("role") String role){
+        if (role == null || !role.contains("ADMIN")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         productService.delete(id);
         return ResponseEntity.noContent().build();
     }

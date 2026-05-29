@@ -27,7 +27,9 @@ public class ProductService {
 
     @Cacheable(value = "products", key = "#id", unless = "#result == null")
     public Product findById(String id) {
-        return productRepository.findById(id).orElse(null).to();
+        return productRepository.findById(id)
+        .map(ProductModel::to)
+        .orElse(null);
     }
 
     public List<Product> findByAll() {

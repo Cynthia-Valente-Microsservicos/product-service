@@ -66,7 +66,7 @@ public class ProductResource implements ProductController {
     }  
     
     @Override
-    public ResponseEntity<List<ProductOut>> findAll(String name) {
+    public ResponseEntity<List<ProductOut>> findAllByName(@RequestParam(value = "name", required = false) String name) {
         List<Product> products;
         
         if (name != null && !name.isBlank()) {

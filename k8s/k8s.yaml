@@ -25,7 +25,6 @@ spec:
               memory: "100Mi"
               cpu: "100m"
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -37,18 +36,13 @@ spec:
     - protocol: TCP
       port: 6379
       targetPort: 6379
-
 ---
-
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: product
 spec:
   replicas: 1
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       app: product
@@ -71,11 +65,12 @@ spec:
               memory: "300Mi"
               cpu: "300m"
           env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-service:9092"
             - name: REDIS_HOST
               value: "product-redis"
             - name: REDIS_PORT
               value: "6379"
-
             - name: DATABASE_HOST
               valueFrom:
                 secretKeyRef:
@@ -84,16 +79,21 @@ spec:
             - name: DATABASE_PORT
               value: "5432"
             - name: DATABASE_DB
-              value: "postgres"
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-configmap
+                  key: POSTGRES_DB
             - name: DATABASE_USERNAME
-              value: "store"
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_USER
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: db-credentials
                   key: database-password
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -105,3 +105,4 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
+  type: ClusterIP

@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
@@ -41,8 +42,18 @@ public class ProductService {
     }
 
     public List<Product> findByNameLike(String name) {
-    return productRepository.searchByNameContaining(name).stream()
-        .map(ProductModel::to)
-        .toList();
+        return productRepository.searchByNameContaining(name).stream()
+            .map(ProductModel::to)
+            .toList();
+    }
+
+    @Transactional
+    @CacheEvict(value = "products", key = "#productId")
+    public void reduceStock(String productId, Integer quantity) {
+        productRepository.findById(productId).ifPresent(product -> {
+            int newStock = Math.max(0, product.stock() - quantity);
+            product.stock(newStock);
+            productRepository.save(product);
+        });
     }
 }

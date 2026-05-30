@@ -1,6 +1,7 @@
 package store.product;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "products", schema = "products")
-@Setter @Accessors(chain = true, fluent = true)
+@Getter @Setter @Accessors(chain = true, fluent = true)
 @NoArgsConstructor @AllArgsConstructor
 public class ProductModel {
     
@@ -33,11 +34,15 @@ public class ProductModel {
     @Column(name = "unit")
     private String unit;
 
+    @Column(name = "stock", nullable = false)
+    private Integer stock;
+
     public ProductModel(Product p){
         this.id = p.id();
         this.name = p.name();
         this.price = p.price();
         this.unit = p.unit();
+        this.stock = p.stock() != null ? p.stock() : 0;
     }
 
     public Product to() {
@@ -46,6 +51,7 @@ public class ProductModel {
             .name(this.name)
             .price(this.price)
             .unit(this.unit)
+            .stock(this.stock)
             .build();
     }
 

@@ -11,4 +11,5 @@ public class Product {
     private String name;
     private Float price;
     private String unit;
+    private Integer stock;
 }

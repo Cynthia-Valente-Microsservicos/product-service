@@ -31,3 +31,10 @@ spring:
     redis:
       time-to-live: 300000    # 5 minutes in milliseconds
       cache-null-values: false
+
+management:
+  endpoints:
+    web:
+      base-path: /product/actuator
+      exposure:
+        include: ['prometheus']

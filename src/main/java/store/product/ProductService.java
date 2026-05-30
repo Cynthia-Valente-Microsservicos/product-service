@@ -44,5 +44,5 @@ public class ProductService {
     return productRepository.searchByNameContaining(name).stream()
         .map(ProductModel::to)
         .toList();
-}
+    }
 }

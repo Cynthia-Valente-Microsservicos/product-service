@@ -11,7 +11,6 @@ public class ProductParser {
             .name(p.name())
             .price(p.price())
             .unit(p.unit())
-            .stock(p.stock())
             .build();
     }
 
@@ -25,7 +24,6 @@ public class ProductParser {
             .name(in.name())
             .price(in.price())
             .unit(in.unit())
-            .stock(in.stock() != null ? in.stock() : 0)
             .build();
     }
 

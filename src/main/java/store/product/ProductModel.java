@@ -42,7 +42,6 @@ public class ProductModel {
         this.name = p.name();
         this.price = p.price();
         this.unit = p.unit();
-        this.stock = p.stock() != null ? p.stock() : 0;
     }
 
     public Product to() {
@@ -51,7 +50,6 @@ public class ProductModel {
             .name(this.name)
             .price(this.price)
             .unit(this.unit)
-            .stock(this.stock)
             .build();
     }
 

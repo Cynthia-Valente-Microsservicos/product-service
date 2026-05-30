@@ -1,4 +1,4 @@
-# product-service
+# Product-Service
 
 Microsserviço responsável pelo cadastro e consulta de produtos da loja. Expõe uma API REST, persiste dados em PostgreSQL e usa Redis para cache de leitura.
 
@@ -15,10 +15,13 @@ ProductResource     ← controller REST (implementa ProductController do módulo
     └── ProductService   ← regras de negócio + anotações de cache
             └── ProductRepository  ← Spring Data (CrudRepository)
                     └── ProductModel  ← entidade JPA (tabela products.products)
+                            └── Product  ← objeto de domínio (classe interna, não JPA)
 
 ProductParser       ← conversões entre Product (domínio), ProductIn e ProductOut
 RedisConfig         ← configuração do serializador JSON para o cache
 ```
+
+> `Product` é a representação interna usada entre as camadas do serviço; `ProductModel` cuida da persistência e `ProductIn`/`ProductOut` são os DTOs da API (vindos do módulo `product`).
 
 ## Endpoints
 
@@ -93,6 +96,29 @@ role: ADMIN
 
 ---
 
+### `GET /products/search`
+Busca produtos pelo nome (parcial, case-insensitive). Se `name` for omitido ou vazio, retorna todos os produtos.
+
+**Parâmetros de query:**
+
+| Parâmetro | Tipo     | Obrigatório | Descrição                        |
+|-----------|----------|-------------|----------------------------------|
+| `name`    | `String` | Não         | Trecho do nome a ser pesquisado  |
+
+**Resposta `200 OK`:**
+```json
+[
+  {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "name": "Arroz",
+    "price": 5.99,
+    "unit": "kg"
+  }
+]
+```
+
+---
+
 ### `GET /products/health-check`
 Verifica se o serviço está no ar.
 
@@ -100,12 +126,13 @@ Verifica se o serviço está no ar.
 
 ## Cache (Redis)
 
-| Operação   | Anotação         | Comportamento                                    |
-|------------|------------------|--------------------------------------------------|
-| `create`   | `@CachePut`      | Insere o produto recém-criado no cache           |
-| `findById` | `@Cacheable`     | Retorna do cache se existir; senão consulta o DB |
-| `delete`   | `@CacheEvict`    | Remove a entrada do cache ao deletar             |
-| `findAll`  | —                | Sempre vai ao banco (lista completa)             |
+| Método de serviço | Anotação         | Comportamento                                    |
+|-------------------|------------------|--------------------------------------------------|
+| `create`          | `@CachePut`      | Insere o produto recém-criado no cache           |
+| `findById`        | `@Cacheable`     | Retorna do cache se existir; senão consulta o DB |
+| `delete`          | `@CacheEvict`    | Remove a entrada do cache ao deletar             |
+| `findByAll`       | —                | Sempre vai ao banco (lista completa)             |
+| `findByNameLike`  | —                | Sempre vai ao banco (busca por nome)             |
 
 - TTL: **5 minutos**
 - Valores nulos não são cacheados (`cache-null-values: false`)

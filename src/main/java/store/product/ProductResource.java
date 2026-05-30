@@ -18,16 +18,8 @@ public class ProductResource implements ProductController {
     private ProductService productService;
     
     @Override
-    public ResponseEntity<List<ProductOut>> findAll(@RequestParam(value = "name", required = false) String name) {
-        List<Product> products;
-        
-        if (name != null && !name.isBlank()) {
-            products = productService.findByNameLike(name);
-        } else {
-            products = productService.findByAll();
-        }
-        
-        return ResponseEntity.ok(ProductParser.to(products));
+    public ResponseEntity<List<ProductOut>> findAll() {
+        return ResponseEntity.ok(ProductParser.to(productService.findByAll()));
     }
 
     @Override
@@ -66,4 +58,15 @@ public class ProductResource implements ProductController {
     public ResponseEntity<Void> healthCheck() {
         return ResponseEntity.ok().build();
     }  
+
+    @Override
+    public ResponseEntity<List<ProductOut>> findAllByName(@RequestParam(value = "name", required = false) String name) {
+        List<Product> products;
+        if (name != null && !name.isBlank()) {
+            products = productService.findByNameLike(name);
+        } else {
+            products = productService.findByAll();
+        }
+        return ResponseEntity.ok(ProductParser.to(products));
+    }
 }

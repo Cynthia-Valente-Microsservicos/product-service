@@ -45,4 +45,4 @@ management:
     web:
       base-path: /product/actuator
       exposure:
-        include: ['prometheus']
+        include: ['prometheus', 'health']
